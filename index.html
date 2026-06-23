@@ -2,25 +2,15 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
 <title>かんたんPL（損益計算書）</title>
 
 <style>
-body{
-  margin:0;
-  font-family:-apple-system;
-  background:#06C755;
-}
+body{margin:0;font-family:-apple-system;background:#06C755;}
 
 .box{
-  max-width:520px;
-  margin:0 auto;
-  background:#fff;
-  padding:16px;
-  min-height:100vh;
-  box-sizing:border-box;
+  max-width:520px;margin:0 auto;background:#fff;
+  padding:16px;min-height:100vh;box-sizing:border-box;
 }
 
 .row{display:flex;margin:10px 0}
@@ -28,81 +18,37 @@ body{
 .userWrap{justify-content:flex-end}
 
 .msg{
-  padding:12px;
-  border-radius:14px;
-  max-width:75%;
-  line-height:1.7;
-  font-size:16px;
+  padding:12px;border-radius:14px;max-width:75%;
+  line-height:1.7;font-size:16px;
 }
 
 .bot{background:#e5e5ea}
 .user{background:#fff;border:1px solid #ddd}
 
-.icon{
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  margin-right:8px;
-}
-.iconRight{
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  margin-left:8px;
-}
+.icon{width:36px;height:36px;border-radius:50%;margin-right:8px}
+.iconRight{width:36px;height:36px;border-radius:50%;margin-left:8px}
 
-.flex{
-  display:flex;
-  align-items:flex-end;  /* ✅ アイコン位置修正 */
-}
+.flex{display:flex;align-items:flex-end}
 
 .inputWrap{
-  position:sticky;
-  bottom:0;
-  background:#fff;
-  padding-top:10px;
-  display:flex;
-  gap:8px;
+  position:sticky;bottom:0;background:#fff;
+  padding-top:10px;display:flex;gap:8px;
 }
 
 input{
-  flex:1;
-  padding:14px;
-  font-size:16px;
-  border-radius:12px;
-  border:1px solid #ddd;
+  flex:1;padding:14px;font-size:16px;
+  border-radius:12px;border:1px solid #ddd;
 }
 
 .sendBtn{
-  padding:0 16px;
-  border:none;
-  border-radius:10px;
-  background:#4f8cff;
-  color:#fff;
-  font-size:16px;
+  padding:0 16px;border:none;border-radius:10px;
+  background:#4f8cff;color:#fff;font-size:16px;
 }
 
 .resetBtn{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border:none;
-  border-radius:10px;
-  background:#ff5c5c;
-  color:#fff;
+  width:100%;padding:10px;margin-top:6px;
+  border:none;border-radius:10px;background:#ff5c5c;color:#fff;
 }
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td{
-  border:1px solid #ddd;
-  padding:6px;
-  font-size:13px;
-}
-th{background:#f5f5f5}
 </style>
 </head>
 
@@ -112,13 +58,12 @@ th{background:#f5f5f5}
 <h3>かんたんPL（損益計算書）</h3>
 <div id="chat"></div>
 
-<div class="inputWrap">
+<div class="inputWrap" id="inputArea">
 <input id="input" placeholder="例：1000000">
 <button class="sendBtn" onclick="send()">送信</button>
 </div>
 
 <button class="resetBtn" onclick="resetAll()">リセット</button>
-
 </div>
 
 <script>
@@ -126,18 +71,19 @@ th{background:#f5f5f5}
 const botIcon="bot.png";
 const userIcon="user.png";
 
+/* ✅ 質問＋説明 */
 const questions=[
-["revenue","売上はいくら？"],
-["cogs","売上原価はいくら？"],
-["salary","人件費は？"],
-["rent","家賃は？"],
-["utilities","水道光熱費は？"],
-["ads","広告費は？"],
-["insurance","保険料は？"],
-["supplies","消耗品費は？"],
-["other","その他経費は？"],
-["nonOpIncome","営業外収益は？"],
-["nonOpExpense","営業外費用は？"]
+["revenue","売上はいくら？","商品やサービスで得たお金"],
+["cogs","売上原価はいくら？","商品を作る・仕入れるための費用"],
+["salary","人件費は？","給料やアルバイト代"],
+["rent","家賃は？","店舗やオフィスの費用"],
+["utilities","水道光熱費は？","電気・ガスなど"],
+["ads","広告費は？","集客や広告費"],
+["insurance","保険料は？","会社の保険など"],
+["supplies","消耗品費は？","備品や消耗品"],
+["other","その他経費は？","その他の費用"],
+["nonOpIncome","営業外収益は？","利息や雑収入"],
+["nonOpExpense","営業外費用は？","借入利息など"]
 ];
 
 let step=0;
@@ -145,7 +91,9 @@ let data={};
 
 const chat=document.getElementById("chat");
 const input=document.getElementById("input");
+const inputArea=document.getElementById("inputArea");
 
+/* ✅ BOT */
 function addBot(html){
   const row=document.createElement("div");
   row.className="row botWrap";
@@ -167,12 +115,13 @@ function addBot(html){
   chat.appendChild(row);
 }
 
+/* ✅ USER */
 function addUser(text){
   const row=document.createElement("div");
   row.className="row userWrap";
 
   const flex=document.createElement("div");
-  flex.className="flex";  /* ✅ これが重要 */
+  flex.className="flex";
 
   const msg=document.createElement("div");
   msg.className="msg user";
@@ -189,6 +138,7 @@ function addUser(text){
   chat.appendChild(row);
 }
 
+/* ✅ 入力制御 */
 function fmt(n){return n.toLocaleString();}
 function valid(v){return /^[0-9]+$/.test(v);}
 
@@ -196,7 +146,7 @@ input.addEventListener("input",()=>{
   input.value=input.value.replace(/[^0-9]/g,"");
 });
 
-/* ✅ 送信処理 */
+/* ✅ 送信 */
 function send(){
 
   const raw=input.value;
@@ -211,9 +161,9 @@ function send(){
   const val=Number(raw);
 
   addUser(fmt(val));
-
   data[questions[step][0]]=val;
 
+  /* ✅ 最後 */
   if(step===questions.length-1){
 
     const revenue=data.revenue||0;
@@ -221,13 +171,8 @@ function send(){
     const gross=revenue-cogs;
 
     const expenses=
-      (data.salary||0)+
-      (data.rent||0)+
-      (data.utilities||0)+
-      (data.ads||0)+
-      (data.insurance||0)+
-      (data.supplies||0)+
-      (data.other||0);
+      (data.salary||0)+(data.rent||0)+(data.utilities||0)+
+      (data.ads||0)+(data.insurance||0)+(data.supplies||0)+(data.other||0);
 
     const operating=gross-expenses;
     const final=operating+((data.nonOpIncome||0)-(data.nonOpExpense||0));
@@ -235,43 +180,41 @@ function send(){
     addBot(`
 <b>📊 損益計算書（PL）の結果</b><br><br>
 
-<b>売上：${fmt(revenue)}円</b><br>
+売上：${fmt(revenue)}円<br>
 👉 売上（収入）<br><br>
 
-<b>原価：${fmt(cogs)}円</b><br>
+原価：${fmt(cogs)}円<br>
 👉 商品コスト<br><br>
 
-<b>粗利：${fmt(gross)}円</b><br>
+粗利：${fmt(gross)}円<br>
 👉 売上 − 原価<br><br>
 
-<b>経費：${fmt(expenses)}円</b><br>
-👉 会社のコスト<br><br>
+経費：${fmt(expenses)}円<br>
+👉 運営コスト<br><br>
 
-<b>営業利益：${fmt(operating)}円</b><br>
+営業利益：${fmt(operating)}円<br>
 👉 本業の結果<br><br>
 
-<b>最終利益：${fmt(final)}円</b><br>
-👉 最終のもうけ<br>
+最終利益：${fmt(final)}円<br>
+👉 最終のもうけ<br><br>
 
-<table>
-<tr><th>項目</th><th>金額</th></tr>
-<tr><td>売上</td><td>${fmt(revenue)}</td></tr>
-<tr><td>原価</td><td>${fmt(cogs)}</td></tr>
-<tr><td>粗利</td><td>${fmt(gross)}</td></tr>
-<tr><td>経費</td><td>${fmt(expenses)}</td></tr>
-<tr><td>営業利益</td><td>${fmt(operating)}</td></tr>
-<tr><td>最終利益</td><td>${fmt(final)}</td></tr>
-</table>
-
-<br>✅ お疲れ様でした！
+✅ お疲れ様でした！
 `);
 
-    input.style.display="none";
+    /* ✅ 入力完全非表示 */
+    inputArea.style.display="none";
+
     return;
   }
 
   step++;
-  addBot(questions[step][1]);
+
+  /* ✅ 次の質問＋説明 */
+  addBot(`
+<b>${questions[step][1]}</b><br>
+👉 ${questions[step][2]}
+`);
+
   input.value="";
 }
 
@@ -285,17 +228,23 @@ function resetAll(){
   chat.innerHTML="";
   step=0;
   data={};
-  input.style.display="block";
   input.value="";
+  inputArea.style.display="flex";
+
   addBot("最初からやり直すよ😊");
-  addBot(questions[0][1]);
+  addBot(`
+<b>${questions[0][1]}</b><br>
+👉 ${questions[0][2]}
+`);
 }
 
 addBot("PL（損益計算書）を作るよ😊");
-addBot(questions[0][1]);
+addBot(`
+<b>${questions[0][1]}</b><br>
+👉 ${questions[0][2]}
+`);
 
 </script>
 
 </body>
 </html>
-``
