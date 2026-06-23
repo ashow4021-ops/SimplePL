@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- ✅ スマホズーム防止 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>かんたんPL（損益計算書）</title>
@@ -39,11 +38,24 @@ body{
 .bot{background:#e5e5ea}
 .user{background:#fff;border:1px solid #ddd}
 
-.icon{width:36px;height:36px;border-radius:50%;margin-right:8px}
-.iconRight{width:36px;height:36px;border-radius:50%;margin-left:8px}
-.flex{display:flex;align-items:flex-end}
+.icon{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  margin-right:8px;
+}
+.iconRight{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  margin-left:8px;
+}
 
-/* ✅ 入力エリア */
+.flex{
+  display:flex;
+  align-items:flex-end;  /* ✅ アイコン位置修正 */
+}
+
 .inputWrap{
   position:sticky;
   bottom:0;
@@ -56,12 +68,11 @@ body{
 input{
   flex:1;
   padding:14px;
-  font-size:16px; /* iPhoneズーム防止 */
+  font-size:16px;
   border-radius:12px;
   border:1px solid #ddd;
 }
 
-/* ✅ 送信ボタン */
 .sendBtn{
   padding:0 16px;
   border:none;
@@ -71,7 +82,6 @@ input{
   font-size:16px;
 }
 
-/* ✅ リセット */
 .resetBtn{
   width:100%;
   padding:10px;
@@ -136,14 +146,20 @@ let data={};
 const chat=document.getElementById("chat");
 const input=document.getElementById("input");
 
-/* ✅ BOT表示 */
 function addBot(html){
   const row=document.createElement("div");
   row.className="row botWrap";
 
-  const flex=document.createElement("div"); flex.className="flex";
-  const icon=document.createElement("img"); icon.src=botIcon; icon.className="icon";
-  const msg=document.createElement("div"); msg.className="msg bot"; msg.innerHTML=html;
+  const flex=document.createElement("div");
+  flex.className="flex";
+
+  const icon=document.createElement("img");
+  icon.src=botIcon;
+  icon.className="icon";
+
+  const msg=document.createElement("div");
+  msg.className="msg bot";
+  msg.innerHTML=html;
 
   flex.appendChild(icon);
   flex.appendChild(msg);
@@ -151,31 +167,36 @@ function addBot(html){
   chat.appendChild(row);
 }
 
-/* ✅ USER表示 */
 function addUser(text){
   const row=document.createElement("div");
   row.className="row userWrap";
 
   const flex=document.createElement("div");
-  const msg=document.createElement("div"); msg.className="msg user"; msg.innerText=text;
-  const icon=document.createElement("img"); icon.src=userIcon; icon.className="iconRight";
+  flex.className="flex";  /* ✅ これが重要 */
+
+  const msg=document.createElement("div");
+  msg.className="msg user";
+  msg.innerText=text;
+
+  const icon=document.createElement("img");
+  icon.src=userIcon;
+  icon.className="iconRight";
 
   flex.appendChild(msg);
   flex.appendChild(icon);
+
   row.appendChild(flex);
   chat.appendChild(row);
 }
 
-/* ✅ ユーティリティ */
 function fmt(n){return n.toLocaleString();}
 function valid(v){return /^[0-9]+$/.test(v);}
 
-/* ✅ 入力は数字だけ */
 input.addEventListener("input",()=>{
-  input.value = input.value.replace(/[^0-9]/g,"");
+  input.value=input.value.replace(/[^0-9]/g,"");
 });
 
-/* ✅ 送信処理（Enter＋ボタン共通） */
+/* ✅ 送信処理 */
 function send(){
 
   const raw=input.value;
@@ -190,6 +211,7 @@ function send(){
   const val=Number(raw);
 
   addUser(fmt(val));
+
   data[questions[step][0]]=val;
 
   if(step===questions.length-1){
@@ -217,19 +239,19 @@ function send(){
 👉 売上（収入）<br><br>
 
 <b>原価：${fmt(cogs)}円</b><br>
-👉 商品のコスト<br><br>
+👉 商品コスト<br><br>
 
 <b>粗利：${fmt(gross)}円</b><br>
-👉 売上 − 原価（ビジネスの強さ）<br><br>
+👉 売上 − 原価<br><br>
 
 <b>経費：${fmt(expenses)}円</b><br>
-👉 会社を回すコスト<br><br>
+👉 会社のコスト<br><br>
 
 <b>営業利益：${fmt(operating)}円</b><br>
-👉 粗利 − 経費（本業の結果）<br><br>
+👉 本業の結果<br><br>
 
 <b>最終利益：${fmt(final)}円</b><br>
-👉 最終的なもうけ<br>
+👉 最終のもうけ<br>
 
 <table>
 <tr><th>項目</th><th>金額</th></tr>
@@ -258,7 +280,7 @@ input.addEventListener("keydown",e=>{
   if(e.key==="Enter") send();
 });
 
-/* ✅ 初期メッセージ */
+/* ✅ 初期表示 */
 function resetAll(){
   chat.innerHTML="";
   step=0;
@@ -276,3 +298,4 @@ addBot(questions[0][1]);
 
 </body>
 </html>
+``
