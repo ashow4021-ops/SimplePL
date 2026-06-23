@@ -2,7 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ✅ スマホズーム完全防止（最重要） -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
 <title>かんたんPL（損益計算書）</title>
 
 <style>
@@ -48,8 +51,10 @@ body{
   border-radius:50%;
   margin-left:8px;
 }
+
 .flex{display:flex;align-items:flex-end}
 
+/* ✅ 下固定（LINE風） */
 .inputWrap{
   position:sticky;
   bottom:0;
@@ -60,7 +65,7 @@ body{
 input{
   width:100%;
   padding:14px;
-  font-size:16px; /* iPhoneズーム防止 */
+  font-size:16px; /* ✅ iPhoneズーム防止 */
   border-radius:12px;
   border:1px solid #ddd;
   box-sizing:border-box;
@@ -186,8 +191,8 @@ function resetAll(){
 
 input.addEventListener("input",()=>{
   let v=clean(input.value);
-  if(!/^[0-9]*$/.test(v))return;
-  if(v)input.value=fmt(Number(v));
+  if(!/^[0-9]*$/.test(v)) return;
+  if(v) input.value=fmt(Number(v));
 });
 
 addBot("PL（損益計算書）を作るよ😊");
@@ -197,6 +202,7 @@ input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
 
     const raw=input.value;
+
     if(!valid(raw)){
       addUser(raw);
       addBot("半角数字で入力して");
@@ -239,7 +245,7 @@ input.addEventListener("keydown",e=>{
 
 <b>最終利益：${fmt(final)}円</b><br>
 👉 営業利益 ＋ その他<br>
-👉 最終的なもうけ<br><br>
+👉 最終的なもうけ<br>
 
 <table>
 <tr><th>項目</th><th>金額</th></tr>
@@ -263,7 +269,9 @@ input.addEventListener("keydown",e=>{
     input.value="";
   }
 });
+
 </script>
 
 </body>
 </html>
+``
