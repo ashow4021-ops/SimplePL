@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- ✅ ズーム完全防止 -->
+<!-- ✅ スマホズーム防止 -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>かんたんPL（損益計算書）</title>
@@ -39,47 +39,47 @@ body{
 .bot{background:#e5e5ea}
 .user{background:#fff;border:1px solid #ddd}
 
-.icon{
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  margin-right:8px;
-}
-.iconRight{
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  margin-left:8px;
-}
-
+.icon{width:36px;height:36px;border-radius:50%;margin-right:8px}
+.iconRight{width:36px;height:36px;border-radius:50%;margin-left:8px}
 .flex{display:flex;align-items:flex-end}
 
-/* ✅ 入力欄固定 */
+/* ✅ 入力エリア */
 .inputWrap{
   position:sticky;
   bottom:0;
   background:#fff;
   padding-top:10px;
+  display:flex;
+  gap:8px;
 }
 
 input{
-  width:100%;
+  flex:1;
   padding:14px;
   font-size:16px; /* iPhoneズーム防止 */
   border-radius:12px;
   border:1px solid #ddd;
-  box-sizing:border-box;
 }
 
-button{
+/* ✅ 送信ボタン */
+.sendBtn{
+  padding:0 16px;
+  border:none;
+  border-radius:10px;
+  background:#4f8cff;
+  color:#fff;
+  font-size:16px;
+}
+
+/* ✅ リセット */
+.resetBtn{
   width:100%;
-  padding:12px;
-  margin-top:8px;
+  padding:10px;
+  margin-top:6px;
   border:none;
   border-radius:10px;
   background:#ff5c5c;
   color:#fff;
-  font-size:16px;
 }
 
 table{
@@ -104,8 +104,11 @@ th{background:#f5f5f5}
 
 <div class="inputWrap">
 <input id="input" placeholder="例：1000000">
-<button onclick="resetAll()">リセット</button>
+<button class="sendBtn" onclick="send()">送信</button>
 </div>
+
+<button class="resetBtn" onclick="resetAll()">リセット</button>
+
 </div>
 
 <script>
@@ -133,20 +136,14 @@ let data={};
 const chat=document.getElementById("chat");
 const input=document.getElementById("input");
 
+/* ✅ BOT表示 */
 function addBot(html){
   const row=document.createElement("div");
   row.className="row botWrap";
 
-  const flex=document.createElement("div");
-  flex.className="flex";
-
-  const icon=document.createElement("img");
-  icon.src=botIcon;
-  icon.className="icon";
-
-  const msg=document.createElement("div");
-  msg.className="msg bot";
-  msg.innerHTML=html;
+  const flex=document.createElement("div"); flex.className="flex";
+  const icon=document.createElement("img"); icon.src=botIcon; icon.className="icon";
+  const msg=document.createElement("div"); msg.className="msg bot"; msg.innerHTML=html;
 
   flex.appendChild(icon);
   flex.appendChild(msg);
@@ -154,20 +151,14 @@ function addBot(html){
   chat.appendChild(row);
 }
 
+/* ✅ USER表示 */
 function addUser(text){
   const row=document.createElement("div");
   row.className="row userWrap";
 
   const flex=document.createElement("div");
-  flex.className="flex";
-
-  const msg=document.createElement("div");
-  msg.className="msg user";
-  msg.innerText=text;
-
-  const icon=document.createElement("img");
-  icon.src=userIcon;
-  icon.className="iconRight";
+  const msg=document.createElement("div"); msg.className="msg user"; msg.innerText=text;
+  const icon=document.createElement("img"); icon.src=userIcon; icon.className="iconRight";
 
   flex.appendChild(msg);
   flex.appendChild(icon);
@@ -175,85 +166,69 @@ function addUser(text){
   chat.appendChild(row);
 }
 
+/* ✅ ユーティリティ */
 function fmt(n){return n.toLocaleString();}
-function clean(v){return v.replace(/,/g,"");}
 function valid(v){return /^[0-9]+$/.test(v);}
 
-/* ✅ 入力はシンプルに（バグ防止） */
+/* ✅ 入力は数字だけ */
 input.addEventListener("input",()=>{
-  let v=input.value.replace(/[^0-9]/g,"");
-  input.value = v;
+  input.value = input.value.replace(/[^0-9]/g,"");
 });
 
-function resetAll(){
-  chat.innerHTML="";
-  step=0;
-  data={};
-  input.style.display="block";
-  input.value="";
-  addBot("最初からやり直すよ😊");
-  addBot(questions[0][1]);
-}
+/* ✅ 送信処理（Enter＋ボタン共通） */
+function send(){
 
-addBot("PL（損益計算書）を作るよ😊");
-addBot(questions[0][1]);
+  const raw=input.value;
 
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
+  if(!valid(raw)){
+    addUser(raw);
+    addBot("数字だけ入力してね！");
+    input.value="";
+    return;
+  }
 
-    const raw=input.value;
+  const val=Number(raw);
 
-    if(!valid(raw)){
-      addUser(raw);
-      addBot("数字だけ入れてね！");
-      input.value="";
-      return;
-    }
+  addUser(fmt(val));
+  data[questions[step][0]]=val;
 
-    const val=Number(raw);
-    addUser(fmt(val));
-    data[questions[step][0]]=val;
+  if(step===questions.length-1){
 
-    if(step===questions.length-1){
+    const revenue=data.revenue||0;
+    const cogs=data.cogs||0;
+    const gross=revenue-cogs;
 
-      const revenue=data.revenue||0;
-      const cogs=data.cogs||0;
-      const gross=revenue-cogs;
+    const expenses=
+      (data.salary||0)+
+      (data.rent||0)+
+      (data.utilities||0)+
+      (data.ads||0)+
+      (data.insurance||0)+
+      (data.supplies||0)+
+      (data.other||0);
 
-      const expenses=
-        (data.salary||0)+
-        (data.rent||0)+
-        (data.utilities||0)+
-        (data.ads||0)+
-        (data.insurance||0)+
-        (data.supplies||0)+
-        (data.other||0);
+    const operating=gross-expenses;
+    const final=operating+((data.nonOpIncome||0)-(data.nonOpExpense||0));
 
-      const operating=gross-expenses;
-      const final=operating+((data.nonOpIncome||0)-(data.nonOpExpense||0));
-
-      addBot(`
+    addBot(`
 <b>📊 損益計算書（PL）の結果</b><br><br>
 
 <b>売上：${fmt(revenue)}円</b><br>
-👉 売って入ってきたお金<br><br>
+👉 売上（収入）<br><br>
 
 <b>原価：${fmt(cogs)}円</b><br>
-👉 商品に直接かかった費用<br><br>
+👉 商品のコスト<br><br>
 
 <b>粗利：${fmt(gross)}円</b><br>
-👉 売上 − 原価<br>
-👉 ビジネスの強さ<br><br>
+👉 売上 − 原価（ビジネスの強さ）<br><br>
 
 <b>経費：${fmt(expenses)}円</b><br>
-👉 会社を動かすコスト<br><br>
+👉 会社を回すコスト<br><br>
 
 <b>営業利益：${fmt(operating)}円</b><br>
-👉 粗利 − 経費<br>
-👉 本業の成果<br><br>
+👉 粗利 − 経費（本業の結果）<br><br>
 
 <b>最終利益：${fmt(final)}円</b><br>
-👉 営業利益 ＋ その他<br>
 👉 最終的なもうけ<br>
 
 <table>
@@ -269,15 +244,33 @@ input.addEventListener("keydown",e=>{
 <br>✅ お疲れ様でした！
 `);
 
-      input.style.display="none";
-      return;
-    }
-
-    step++;
-    addBot(questions[step][1]);
-    input.value="";
+    input.style.display="none";
+    return;
   }
+
+  step++;
+  addBot(questions[step][1]);
+  input.value="";
+}
+
+/* ✅ Enter対応 */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter") send();
 });
+
+/* ✅ 初期メッセージ */
+function resetAll(){
+  chat.innerHTML="";
+  step=0;
+  data={};
+  input.style.display="block";
+  input.value="";
+  addBot("最初からやり直すよ😊");
+  addBot(questions[0][1]);
+}
+
+addBot("PL（損益計算書）を作るよ😊");
+addBot(questions[0][1]);
 
 </script>
 
