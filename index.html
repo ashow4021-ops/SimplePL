@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>かんたんPL（損益計算書）</title>
+<style>
+body{font-family:-apple-system;background:#06C755;display:flex;justify-content:center;padding:20px}
+.box{width:100%;max-width:520px;background:#fff;padding:16px;border-radius:20px}
+.row{display:flex;margin:10px 0}
+.botWrap{justify-content:flex-start}
+.userWrap{justify-content:flex-end}
+.msg{padding:12px;border-radius:14px;max-width:75%;line-height:1.7}
+.bot{background:#e5e5ea}
+.user{background:#fff;border:1px solid #ddd}
+.icon{width:36px;height:36px;border-radius:50%;margin-right:8px}
+.iconRight{width:36px;height:36px;border-radius:50%;margin-left:8px}
+.flex{display:flex;align-items:flex-end}
+.input{width:100%;padding:12px;border-radius:12px;border:1px solid #ddd;margin-top:10px;box-sizing:border-box}
+.btn{margin-top:8px;width:100%;padding:10px;border:none;border-radius:10px;background:#ff5c5c;color:#fff}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ddd;padding:6px;font-size:13px}
+th{background:#f5f5f5}
+</style>
+</head>
+<body>
+<div class='box'>
+<h3>かんたんPL（損益計算書）</h3>
+<div id='chat'></div>
+<input id='input' class='input' placeholder='例：1,000,000'>
+<button class='btn' onclick='resetAll()'>リセット</button>
+</div>
+<script>
+const botIcon="bot.png";
+const userIcon="user.png";
+
+const questions=[
+["revenue","売上はいくら？"],
+["cogs","売上原価はいくら？"],
+["salary","人件費は？"],
+["rent","家賃は？"],
+["utilities","水道光熱費は？"],
+["ads","広告費は？"],
+["insurance","保険料は？"],
+["supplies","消耗品費は？"],
+["other","その他経費は？"],
+["nonOpIncome","営業外収益は？"],
+["nonOpExpense","営業外費用は？"]
+]
+
+let step=0,data={}
+const chat=document.getElementById('chat')
+const input=document.getElementById('input')
+
+function addBot(html){
+ const row=document.createElement('div');row.className='row botWrap'
+ const flex=document.createElement('div');flex.className='flex'
+ const icon=document.createElement('img');icon.src=botIcon;icon.className='icon'
+ const msg=document.createElement('div');msg.className='msg bot';msg.innerHTML=html
+ flex.appendChild(icon);flex.appendChild(msg);row.appendChild(flex)
+ chat.appendChild(row)
+}
+
+function addUser(t){
+ const row=document.createElement('div');row.className='row userWrap'
+ const flex=document.createElement('div');flex.className='flex'
+ const msg=document.createElement('div');msg.className='msg user';msg.innerText=t
+ const icon=document.createElement('img');icon.src=userIcon;icon.className='iconRight'
+ flex.appendChild(msg);flex.appendChild(icon);row.appendChild(flex)
+ chat.appendChild(row)
+}
+
+function fmt(n){return n.toLocaleString()}
+function clean(v){return v.replace(/,/g,'')}
+function valid(v){return /^[0-9,]+$/.test(v)}
+
+function resetAll(){
+ chat.innerHTML=''; step=0; data={}; input.style.display='block'; input.value='';
+ addBot('最初からやり直すよ😊'); addBot(questions[0][1]);
+}
+
+input.addEventListener('input',()=>{
+ let v=clean(input.value); if(!/^[0-9]*$/.test(v))return;
+ if(v)input.value=fmt(Number(v))
+})
+
+addBot('PL（損益計算書）を作るよ😊'); addBot(questions[0][1])
+
+input.addEventListener('keydown',e=>{
+ if(e.key==='Enter'){
+  const raw=input.value
+  if(!valid(raw)){addUser(raw); addBot('半角数字で入力して'); input.value=''; return}
+  const val=Number(clean(raw))
+  addUser(raw); data[questions[step][0]]=val
+
+  if(step===questions.length-1){
+    const revenue=data.revenue||0
+    const cogs=data.cogs||0
+    const gross=revenue-cogs
+    const expenses=(data.salary||0)+(data.rent||0)+(data.utilities||0)+(data.ads||0)+(data.insurance||0)+(data.supplies||0)+(data.other||0)
+    const operating=gross-expenses
+    const final=operating+((data.nonOpIncome||0)-(data.nonOpExpense||0))
+
+    addBot(`
+<b>📊 損益計算書（PL）の結果</b><br><br>
+
+<b>売上：${fmt(revenue)}円</b><br>
+👉 商品やサービスを売って入ってきたお金<br><br>
+
+<b>原価：${fmt(cogs)}円</b><br>
+👉 売上に直接かかった費用<br><br>
+
+<b>粗利：${fmt(gross)}円</b><br>
+👉 売上 − 原価<br>
+👉 商品そのものの利益<br><br>
+
+<b>経費：${fmt(expenses)}円</b><br>
+👉 会社を運営するためのお金<br><br>
+
+<b>営業利益：${fmt(operating)}円</b><br>
+👉 粗利 − 経費<br>
+👉 本業のもうけ<br><br>
+
+<b>最終利益：${fmt(final)}円</b><br>
+👉 営業利益 ＋ その他収支<br>
+👉 最終的に残る利益<br>
+
+<br>
+<b>📋 一覧</b>
+<table>
+<tr><th>項目</th><th>金額</th></tr>
+<tr><td>売上</td><td>${fmt(revenue)}</td></tr>
+<tr><td>原価</td><td>${fmt(cogs)}</td></tr>
+<tr><td>粗利</td><td>${fmt(gross)}</td></tr>
+<tr><td>経費</td><td>${fmt(expenses)}</td></tr>
+<tr><td>営業利益</td><td>${fmt(operating)}</td></tr>
+<tr><td>最終利益</td><td>${fmt(final)}</td></tr>
+</table>
+
+<br>
+✅ お疲れ様でした！
+`)
+    input.style.display='none'; return
+  }
+
+  step++; addBot(questions[step][1]); input.value=''
+ }
+})
+</script>
+</body>
+</html>
